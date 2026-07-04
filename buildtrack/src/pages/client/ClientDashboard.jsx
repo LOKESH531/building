@@ -2,26 +2,41 @@ import {useEffect,useState} from "react";
 
 import {
 doc,
-getDoc
+getDoc,
+collection,
+getDocs,
+query,
+where
 }
 from "firebase/firestore";
 
-
 import {db} from "../../firebase/firebaseConfig";
+
+import ClientLayout from "../../layouts/ClientLayout";
+
+import {useNavigate} from "react-router-dom";
 
 
 
 function ClientDashboard(){
 
 
+const navigate=useNavigate();
+
+
 const [project,setProject]=useState(null);
+
+const [spent,setSpent]=useState(0);
+
+const [updates,setUpdates]=useState([]);
+
 
 
 
 useEffect(()=>{
 
 
-loadProject();
+load();
 
 
 },[]);
@@ -29,11 +44,12 @@ loadProject();
 
 
 
+const load=async()=>{
 
-const loadProject=async()=>{
 
+const client=
 
-const client = JSON.parse(
+JSON.parse(
 
 localStorage.getItem("client")
 
@@ -41,15 +57,16 @@ localStorage.getItem("client")
 
 
 
-if(!client){
-
-return;
-
-}
+if(!client)return;
 
 
 
-const ref=doc(
+// PROJECT
+
+
+const snap=await getDoc(
+
+doc(
 
 db,
 
@@ -57,11 +74,9 @@ db,
 
 client.projectId
 
+)
+
 );
-
-
-
-const snap=await getDoc(ref);
 
 
 
@@ -81,9 +96,90 @@ id:snap.id,
 
 
 
+
+// EXPENSES
+
+
+const expenses=await getDocs(
+
+collection(db,"expenses")
+
+);
+
+
+
+let total=0;
+
+
+
+expenses.docs.forEach(doc=>{
+
+
+const e=doc.data();
+
+
+if(e.projectId===client.projectId){
+
+
+total+=Number(e.amount||0);
+
+
+}
+
+
+});
+
+
+
+setSpent(total);
+
+
+
+
+// UPDATES
+
+
+const q=query(
+
+collection(db,"dailyUpdates"),
+
+where(
+
+"projectId",
+
+"==",
+
+client.projectId
+
+)
+
+);
+
+
+
+const data=await getDocs(q);
+
+
+
+setUpdates(
+
+data.docs.map(doc=>(
+
+{
+
+id:doc.id,
+
+...doc.data()
+
+}
+
+))
+
+);
+
+
+
 };
-
-
 
 
 
@@ -95,77 +191,252 @@ return <h2>Loading...</h2>;
 
 
 
-
-
 return(
 
 
-<div className="center">
+<ClientLayout>
 
 
-<div className="dashboard-box">
+
+<div className="client-page">
 
 
 <h1>
 
-Welcome {JSON.parse(localStorage.getItem("client")).name}
+Welcome 👋
 
 </h1>
 
 
 
+
+<div className="dashboard-box">
+
+
 <h2>
 
-Project Details
+{project.name}
+
+</h2>
+
+
+<p>
+
+📍 {project.location}
+
+</p>
+
+
+<span className="status">
+
+{project.status}
+
+</span>
+
+
+
+</div>
+
+
+
+
+<div className="cards">
+
+
+
+<div
+
+className="card clickable"
+
+onClick={()=>navigate(`/client-updates`)}
+
+>
+
+
+<h2>
+
+📝 Updates
+
+</h2>
+
+
+<h1>
+
+{updates.length}
+
+</h1>
+
+
+<p>
+
+View Work
+
+</p>
+
+
+</div>
+
+
+
+
+<div
+
+className="card clickable"
+
+onClick={()=>navigate(`/client-expenses`)}
+
+>
+
+
+<h2>
+
+💰 Expenses
+
+</h2>
+
+
+<h1>
+
+₹{spent}
+
+</h1>
+
+
+<p>
+
+View Details
+
+</p>
+
+
+</div>
+
+
+
+
+<div
+
+className="card clickable"
+
+onClick={()=>navigate(`/client-progress`)}
+
+>
+
+
+<h2>
+
+📊 Progress
+
+</h2>
+
+
+<h1>
+
+{project.progress}%
+
+</h1>
+
+
+<p>
+
+Track Project
+
+</p>
+
+
+</div>
+
+
+
+
+<div
+
+className="card clickable"
+
+onClick={()=>navigate("/client-documents")}
+
+>
+
+
+<h2>
+
+📁 Documents
+
+</h2>
+
+
+<p>
+
+View Files
+
+</p>
+
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+<div className="dashboard-box">
+
+
+<h2>
+
+Latest Updates
 
 </h2>
 
 
 
+{
 
-<p>
-
-Project:
-
-{project.name}
-
-</p>
+updates.slice(0,3).map(u=>(
 
 
-
-<p>
-
-Location:
-
-{project.location}
-
-</p>
+<div key={u.id}>
 
 
+<h3>
+
+📅 {u.date}
+
+</h3>
 
 
 <p>
 
-Progress:
-
-{project.progress}%
+{u.workDone}
 
 </p>
 
 
+</div>
 
-<div className="progress-bar">
+
+))
 
 
-<div
+}
 
-style={{
 
-width:project.progress+"%"
 
-}}
+<button
 
-/>
+className="add-btn"
+
+onClick={()=>navigate("/client-updates")}
+
+>
+
+View All Updates
+
+</button>
+
 
 
 </div>
@@ -173,26 +444,14 @@ width:project.progress+"%"
 
 
 
-
-<p>
-
-Status:
-
-{project.status}
-
-</p>
-
-
-
 </div>
 
 
 
-</div>
+</ClientLayout>
 
 
 )
-
 
 
 }

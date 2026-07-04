@@ -1,81 +1,112 @@
 import {useEffect,useState} from "react";
 
-
-import {useParams} from "react-router-dom";
-
+import {useParams,useNavigate} from "react-router-dom";
 
 import {
 doc,
 getDoc,
 collection,
-getDocs
+getDocs,
+deleteDoc
 }
 from "firebase/firestore";
 
-
 import {db} from "../../firebase/firebaseConfig";
-
 
 import AdminLayout from "../../layouts/AdminLayout";
 
+import generateReport from "../../utils/generateReport";
 
 
 function ProjectDetails(){
 
 
-
 const {id}=useParams();
+
+const navigate=useNavigate();
 
 
 const [project,setProject]=useState(null);
 
+const [materialTotal,setMaterialTotal]=useState(0);
 
-const [materialCost,setMaterialCost]=useState(0);
+const [expenseTotal,setExpenseTotal]=useState(0);
 
+const [assignedWorkers,setAssignedWorkers]=useState([]);
 
-const [expense,setExpense]=useState(0);
-
-
+const [spent,setSpent]=useState(0);
 
 
 useEffect(()=>{
 
-
 loadProject();
-
 
 loadMaterials();
 
-
 loadExpenses();
 
+loadWorkers();
+
+calculateSpent();
 
 },[]);
 
 
+const calculateSpent=async()=>{
+
+const data=await getDocs(
+
+collection(db,"expenses")
+
+);
+
+let total=0;
+
+data.docs.forEach(doc=>{
+
+const e=doc.data();
+
+if(e.projectId===id){
+
+total+=Number(e.amount);
+
+}
+
+});
+
+setSpent(total);
+
+};
+
+
+const loadWorkers=async()=>{
+
+const data=await getDocs(
+
+collection(db,"projectWorkers")
+
+);
+
+setAssignedWorkers(
+
+data.docs.map(doc=>doc.data())
+
+.filter(w=>w.projectId===id)
+
+);
+
+};
 
 
 const loadProject=async()=>{
 
+const snap=await getDoc(
 
-const ref=doc(
-
-db,
-
-"projects",
-
-id
+doc(db,"projects",id)
 
 );
 
-
-
-const snap=await getDoc(ref);
-
-
-
 if(snap.exists()){
-
 
 setProject({
 
@@ -85,18 +116,12 @@ id:snap.id,
 
 });
 
-
 }
-
-
 
 };
 
 
-
-
 const loadMaterials=async()=>{
-
 
 const data=await getDocs(
 
@@ -104,44 +129,58 @@ collection(db,"materials")
 
 );
 
-
-
 let total=0;
-
-
 
 data.docs.forEach(doc=>{
 
-
 const item=doc.data();
-
-
 
 if(item.projectId===id){
 
-
-total += Number(item.amount || 0);
-
+total += Number(item.cost || item.amount || 0);
 
 }
 
-
-
 });
 
-
-
-setMaterialCost(total);
-
-
+setMaterialTotal(total);
 
 };
 
 
+const downloadReport=()=>{
+
+generateReport(
+
+project,
+
+materialTotal,
+
+expenseTotal,
+
+assignedWorkers
+
+);
+
+};
+
+
+const deleteProject=async()=>{
+
+await deleteDoc(
+
+doc(db,"projects",id)
+
+);
+
+alert("Deleted");
+
+navigate("/projects");
+
+};
 
 
 const loadExpenses=async()=>{
-
 
 const data=await getDocs(
 
@@ -149,38 +188,23 @@ collection(db,"expenses")
 
 );
 
-
-
 let total=0;
-
-
 
 data.docs.forEach(doc=>{
 
-
 const item=doc.data();
-
-
 
 if(item.projectId===id){
 
-
 total += Number(item.amount || 0);
-
 
 }
 
-
 });
 
-
-
-setExpense(total);
-
+setExpenseTotal(total);
 
 };
-
-
 
 
 if(!project)
@@ -188,25 +212,16 @@ if(!project)
 return <h2>Loading...</h2>;
 
 
-
-
 return(
 
-
-
 <AdminLayout>
-
-
 
 <div className="project-details">
 
 
-
 <div className="details-header">
 
-
 <div>
-
 
 <h1>
 
@@ -214,172 +229,146 @@ return(
 
 </h1>
 
-
-
 <p>
 
 📍 {project.location}
 
 </p>
 
-
 </div>
 
-
-
-
-<span
-
-className={
-
-project.status==="Completed"
-
-?
-
-"status completed"
-
-:
-
-"status running"
-
-}
-
->
+<span className="status">
 
 {project.status || "Running"}
 
 </span>
 
+<button
 
+className="add-btn"
+
+onClick={deleteProject}
+
+>
+
+Delete Project
+
+</button>
+
+<button
+
+className="add-btn"
+
+onClick={downloadReport}
+
+>
+
+📄 Download Report
+
+</button>
+
+<button
+
+className="add-btn"
+
+onClick={()=>navigate(`/edit-project/${id}`)}
+
+>
+
+✏️ Edit Project
+
+</button>
+
+<button
+
+className="add-btn"
+
+onClick={()=>navigate(`/daily-update/${id}`)}
+
+>
+
+📝 Daily Update
+
+</button>
+
+<button
+
+className="add-btn"
+
+onClick={()=>navigate(`/assign-workers/${id}`)}
+
+>
+
+👷 Assign Workers
+
+</button>
 
 </div>
-
-
 
 
 <div className="details-grid">
 
 
+<div className="detail-card">
+
+<h3>Client</h3>
+
+<h2>{project.client}</h2>
+
+<p>{project.clientEmail}</p>
+
+</div>
 
 
 <div className="detail-card">
 
+<h3>Materials</h3>
 
-<h3>
+<h2>₹ {materialTotal}</h2>
 
-Client
+<button
 
-</h3>
+className="add-btn"
 
+onClick={()=>navigate(`/materials/${id}`)}
 
-<p>
+>
 
-👤 {project.client}
+📦 Manage Materials
 
-</p>
-
-
-
-<p>
-
-📧 {project.clientEmail}
-
-</p>
-
-
+</button>
 
 </div>
-
-
 
 
 <div className="detail-card">
 
+<h3>Expenses</h3>
 
-<h3>
+<h2>₹ {expenseTotal}</h2>
 
-Budget
+<button
 
-</h3>
+className="add-btn"
 
+onClick={()=>navigate(`/expenses/${id}`)}
 
-<h2>
+>
 
-₹ {project.budget}
+💰 Manage Expenses
 
-</h2>
-
-
+</button>
 
 </div>
-
-
 
 
 <div className="detail-card">
 
+<h3>Completion</h3>
 
-<h3>
+<div
 
-Materials Cost
-
-</h3>
-
-
-<h2>
-
-₹ {materialCost}
-
-</h2>
-
-
-
-</div>
-
-
-
-
-<div className="detail-card">
-
-
-<h3>
-
-Expenses
-
-</h3>
-
-
-<h2>
-
-₹ {expense}
-
-</h2>
-
-
-
-</div>
-
-
-
-</div>
-
-
-
-
-<div className="progress-card">
-
-
-
-<h2>
-
-Project Progress
-
-</h2>
-
-
-
-<div className="circle"
-
+className="circle"
 
 style={{
 
@@ -391,37 +380,73 @@ background:
 
 >
 
-
 <div>
-
 
 {project.progress}%
 
+</div>
+
+</div>
 
 </div>
 
 
+<div className="detail-card">
+
+<h3>
+
+Remaining Budget
+
+</h3>
+
+<h2>
+
+₹{project.budget-spent}
+
+</h2>
 
 </div>
 
 
+</div>
 
+
+<div className="dashboard-box">
+
+<h2>Assigned Workers</h2>
+
+{
+
+assignedWorkers.length===0
+
+&&
+
+<p>No workers assigned</p>
+
+}
+
+{
+
+assignedWorkers.map(w=>(
+
+<p key={w.workerId}>
+
+👷 {w.workerName} - {w.role}
+
+</p>
+
+))
+
+}
 
 </div>
 
 
-
-
 </div>
-
-
 
 </AdminLayout>
 
-
-
 )
-
 
 }
 

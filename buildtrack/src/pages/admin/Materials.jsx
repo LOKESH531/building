@@ -1,49 +1,68 @@
 import {useEffect,useState} from "react";
 
-import AdminLayout from "../../layouts/AdminLayout";
 
 import {
+
 collection,
+
 addDoc,
+
 getDocs
+
 }
+
 from "firebase/firestore";
+
 
 import {db} from "../../firebase/firebaseConfig";
 
-import {useParams} from "react-router-dom";
+
+import {
+
+useParams
+
+}
+
+from "react-router-dom";
+
+
+import AdminLayout from "../../layouts/AdminLayout";
 
 
 
 function Materials(){
 
 
+
 const {id}=useParams();
 
 
-const [materials,setMaterials]=useState([]);
+
+const [items,setItems]=useState([]);
+
 
 
 const [name,setName]=useState("");
 
-const [quantity,setQuantity]=useState("");
+const [buy,setBuy]=useState("");
 
-const [amount,setAmount]=useState("");
+const [used,setUsed]=useState("");
+
+const [cost,setCost]=useState("");
 
 
 
 
 useEffect(()=>{
 
-loadMaterials();
+load();
 
 },[]);
 
 
 
 
-
-const loadMaterials=async()=>{
+const load=async()=>{
 
 
 const data=await getDocs(
@@ -54,21 +73,27 @@ collection(db,"materials")
 
 
 
-const list=data.docs
+setItems(
 
-.map(doc=>({
+data.docs.map(doc=>(
+
+{
 
 id:doc.id,
 
 ...doc.data()
 
-}))
+}
 
-.filter(item=>item.projectId===id);
+))
 
+.filter(
 
+m=>m.projectId===id
 
-setMaterials(list);
+)
+
+);
 
 
 
@@ -77,9 +102,17 @@ setMaterials(list);
 
 
 
+const add=async()=>{
 
 
-const addMaterial=async()=>{
+if(!name||!buy||!cost){
+
+alert("Fill details");
+
+return;
+
+}
+
 
 
 await addDoc(
@@ -88,18 +121,15 @@ collection(db,"materials"),
 
 {
 
-
 projectId:id,
 
 name:name,
 
-quantity:Number(quantity),
+purchaseQty:Number(buy),
 
-amount:Number(amount),
+usedQty:Number(used),
 
-createdAt:new Date()
-
-
+cost:Number(cost)
 
 }
 
@@ -107,23 +137,10 @@ createdAt:new Date()
 
 
 
-alert("Material Added");
-
-
-setName("");
-
-setQuantity("");
-
-setAmount("");
-
-
-loadMaterials();
-
+load();
 
 
 };
-
-
 
 
 
@@ -134,22 +151,20 @@ return(
 <AdminLayout>
 
 
+<div className="form-box">
+
+
 <h1>
 
-Project Materials
+Materials
 
 </h1>
 
 
 
-<div className="form-box">
-
-
 <input
 
-placeholder="Material Name"
-
-value={name}
+placeholder="Material"
 
 onChange={e=>setName(e.target.value)}
 
@@ -159,11 +174,9 @@ onChange={e=>setName(e.target.value)}
 
 <input
 
-placeholder="Quantity"
+placeholder="Purchase Qty"
 
-value={quantity}
-
-onChange={e=>setQuantity(e.target.value)}
+onChange={e=>setBuy(e.target.value)}
 
 />
 
@@ -171,11 +184,19 @@ onChange={e=>setQuantity(e.target.value)}
 
 <input
 
-placeholder="Amount"
+placeholder="Used Qty"
 
-value={amount}
+onChange={e=>setUsed(e.target.value)}
 
-onChange={e=>setAmount(e.target.value)}
+/>
+
+
+
+<input
+
+placeholder="Cost"
+
+onChange={e=>setCost(e.target.value)}
 
 />
 
@@ -185,7 +206,7 @@ onChange={e=>setAmount(e.target.value)}
 
 className="add-btn"
 
-onClick={addMaterial}
+onClick={add}
 
 >
 
@@ -194,10 +215,7 @@ Add Material
 </button>
 
 
-
 </div>
-
-
 
 
 
@@ -207,7 +225,7 @@ Add Material
 
 <h2>
 
-Material History
+Stock
 
 </h2>
 
@@ -215,23 +233,53 @@ Material History
 
 {
 
-materials.map(item=>(
+items.length===0
+
+&&
+
+<h2>No Materials Added</h2>
+
+}
 
 
-<div key={item.id}>
+{
+
+items.map(m=>(
+
+
+<div key={m.id}>
 
 
 <h3>
 
-📦 {item.name}
+📦 {m.name}
 
 </h3>
 
 
 <p>
 
-Quantity:
-{item.quantity}
+Bought:
+
+{m.purchaseQty}
+
+</p>
+
+
+<p>
+
+Used:
+
+{m.usedQty}
+
+</p>
+
+
+<p>
+
+Remaining:
+
+{m.purchaseQty-m.usedQty}
 
 </p>
 
@@ -239,7 +287,8 @@ Quantity:
 <p>
 
 Cost:
-₹{item.amount}
+
+₹{m.cost}
 
 </p>
 
@@ -268,7 +317,6 @@ Cost:
 
 
 }
-
 
 
 export default Materials;

@@ -67,7 +67,7 @@ status:"Not Started",
 
 clientEmail:clientEmail,
 
-createdAt:new Date()
+createdAt:new Date().toLocaleDateString()
 
 }
 

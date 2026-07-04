@@ -25,12 +25,32 @@ import ProjectDetails from "./pages/admin/ProjectDetails";
 import CreateProject from "./pages/admin/CreateProject";
 
 import DailyUpdate from "./pages/admin/DailyUpdate";
-import ClientDashboard from "./pages/client/ClientDashboard";
-import ProtectedRoute from "./components/ProtectedRoute";
+
+import EditProject from "./pages/admin/EditProject";
+
+import AssignWorkers from "./pages/admin/AssignWorkers";
+
 import Workers from "./pages/admin/Workers";
+
 import Materials from "./pages/admin/Materials";
+
 import Expenses from "./pages/admin/Expenses";
+
 import Reports from "./pages/admin/Reports";
+
+import ClientDashboard from "./pages/client/ClientDashboard";
+
+import ClientUpdates from "./pages/client/ClientUpdates";
+
+import ClientExpenses from "./pages/client/ClientExpenses";
+
+import ClientProgress from "./pages/client/ClientProgress";
+
+import ClientDocuments from "./pages/client/ClientDocuments";
+
+import AdminRoute from "./routes/AdminRoute";
+
+import ClientRoute from "./routes/ClientRoute";
 
 
 
@@ -91,7 +111,15 @@ element={<ClientLogin/>}
 
 path="/dashboard"
 
-element={<Dashboard/>}
+element={
+
+<AdminRoute>
+
+<Dashboard/>
+
+</AdminRoute>
+
+}
 
 />
 
@@ -103,11 +131,11 @@ path="/projects"
 
 element={
 
-<ProtectedRoute type="admin">
+<AdminRoute>
 
 <Projects/>
 
-</ProtectedRoute>
+</AdminRoute>
 
 }
 
@@ -121,87 +149,13 @@ path="/project/:id"
 
 element={
 
-<ProtectedRoute type="admin">
+<AdminRoute>
 
 <ProjectDetails/>
 
-</ProtectedRoute>
+</AdminRoute>
 
 }
-
-/>
-
-<Route
-
-path="/workers"
-
-element={
-
-<ProtectedRoute type="admin">
-
-<Workers/>
-
-</ProtectedRoute>
-
-}
-
-/>
-
-
-
-<Route
-
-path="/materials/:id"
-
-element={
-
-<ProtectedRoute type="admin">
-
-<Materials/>
-
-</ProtectedRoute>
-
-}
-
-/>
-
-
-
-<Route
-
-path="/materials"
-
-element={<Materials/>}
-
-/>
-
-
-
-<Route
-
-path="/expenses"
-
-element={<Expenses/>}
-
-/>
-
-
-
-<Route
-
-path="/expenses/:id"
-
-element={<Expenses/>}
-
-/>
-
-
-
-<Route
-
-path="/reports"
-
-element={<Reports/>}
 
 />
 
@@ -213,11 +167,29 @@ path="/create-project"
 
 element={
 
-<ProtectedRoute type="admin">
+<AdminRoute>
 
 <CreateProject/>
 
-</ProtectedRoute>
+</AdminRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/edit-project/:id"
+
+element={
+
+<AdminRoute>
+
+<EditProject/>
+
+</AdminRoute>
 
 }
 
@@ -231,11 +203,137 @@ path="/daily-update/:id"
 
 element={
 
-<ProtectedRoute type="admin">
+<AdminRoute>
 
 <DailyUpdate/>
 
-</ProtectedRoute>
+</AdminRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/assign-workers/:id"
+
+element={
+
+<AdminRoute>
+
+<AssignWorkers/>
+
+</AdminRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/workers"
+
+element={
+
+<AdminRoute>
+
+<Workers/>
+
+</AdminRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/materials/:id"
+
+element={
+
+<AdminRoute>
+
+<Materials/>
+
+</AdminRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/materials"
+
+element={
+
+<AdminRoute>
+
+<Materials/>
+
+</AdminRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/expenses"
+
+element={
+
+<AdminRoute>
+
+<Expenses/>
+
+</AdminRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/expenses/:id"
+
+element={
+
+<AdminRoute>
+
+<Expenses/>
+
+</AdminRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/reports"
+
+element={
+
+<AdminRoute>
+
+<Reports/>
+
+</AdminRoute>
 
 }
 
@@ -249,16 +347,87 @@ path="/client-dashboard"
 
 element={
 
-<ProtectedRoute type="client">
+<ClientRoute>
 
 <ClientDashboard/>
 
-</ProtectedRoute>
+</ClientRoute>
 
 }
 
 />
 
+
+
+<Route
+
+path="/client-updates"
+
+element={
+
+<ClientRoute>
+
+<ClientUpdates/>
+
+</ClientRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/client-expenses"
+
+element={
+
+<ClientRoute>
+
+<ClientExpenses/>
+
+</ClientRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/client-progress"
+
+element={
+
+<ClientRoute>
+
+<ClientProgress/>
+
+</ClientRoute>
+
+}
+
+/>
+
+
+
+<Route
+
+path="/client-documents"
+
+element={
+
+<ClientRoute>
+
+<ClientDocuments/>
+
+</ClientRoute>
+
+}
+
+/>
 
 
 </Routes>

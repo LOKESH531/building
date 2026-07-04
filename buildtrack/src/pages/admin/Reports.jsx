@@ -1,5 +1,6 @@
 import {useEffect,useState} from "react";
 
+
 import AdminLayout from "../../layouts/AdminLayout";
 
 
@@ -17,13 +18,15 @@ import {db} from "../../firebase/firebaseConfig";
 function Reports(){
 
 
-const [projects,setProjects]=useState([]);
+const [projects,setProjects]=useState(0);
 
-const [expenses,setExpenses]=useState([]);
+const [workers,setWorkers]=useState(0);
 
-const [workers,setWorkers]=useState([]);
+const [materialCost,setMaterialCost]=useState(0);
 
-const [materials,setMaterials]=useState([]);
+const [expenseCost,setExpenseCost]=useState(0);
+
+const [completed,setCompleted]=useState(0);
 
 
 
@@ -31,7 +34,7 @@ const [materials,setMaterials]=useState([]);
 useEffect(()=>{
 
 
-loadReport();
+loadReports();
 
 
 },[]);
@@ -39,7 +42,8 @@ loadReport();
 
 
 
-const loadReport=async()=>{
+const loadReports=async()=>{
+
 
 
 const projectData=await getDocs(
@@ -49,11 +53,26 @@ collection(db,"projects")
 );
 
 
-const expenseData=await getDocs(
 
-collection(db,"expenses")
+const projectList=projectData.docs.map(doc=>doc.data());
+
+
+
+setProjects(projectList.length);
+
+
+
+setCompleted(
+
+projectList.filter(
+
+p=>p.status==="Completed"
+
+).length
 
 );
+
+
 
 
 const workerData=await getDocs(
@@ -61,6 +80,11 @@ const workerData=await getDocs(
 collection(db,"workers")
 
 );
+
+
+setWorkers(workerData.size);
+
+
 
 
 const materialData=await getDocs(
@@ -71,56 +95,60 @@ collection(db,"materials")
 
 
 
-setProjects(
+let mTotal=0;
 
-projectData.docs.map(doc=>({
 
-id:doc.id,
 
-...doc.data()
+materialData.docs.forEach(doc=>{
 
-}))
+
+mTotal += Number(
+
+doc.data().amount || 0
+
+);
+
+
+});
+
+
+
+setMaterialCost(mTotal);
+
+
+
+
+const expenseData=await getDocs(
+
+collection(db,"expenses")
 
 );
 
 
 
-setExpenses(
-
-expenseData.docs.map(doc=>doc.data())
-
-);
+let eTotal=0;
 
 
 
-setWorkers(
-
-workerData.docs.map(doc=>doc.data())
-
-);
+expenseData.docs.forEach(doc=>{
 
 
+eTotal += Number(
 
-setMaterials(
-
-materialData.docs.map(doc=>doc.data())
+doc.data().amount || 0
 
 );
+
+
+});
+
+
+
+setExpenseCost(eTotal);
 
 
 
 };
-
-
-
-
-const totalExpense = expenses.reduce(
-
-(sum,item)=>sum + Number(item.amount),
-
-0
-
-);
 
 
 
@@ -131,11 +159,13 @@ return(
 <AdminLayout>
 
 
+
 <h1>
 
-Reports Dashboard
+Reports
 
 </h1>
+
 
 
 
@@ -155,7 +185,7 @@ Reports Dashboard
 
 <h1>
 
-{projects.length}
+{projects}
 
 </h1>
 
@@ -177,7 +207,7 @@ Reports Dashboard
 
 <h1>
 
-{workers.length}
+{workers}
 
 </h1>
 
@@ -199,7 +229,7 @@ Reports Dashboard
 
 <h1>
 
-{materials.length}
+₹{materialCost}
 
 </h1>
 
@@ -221,7 +251,7 @@ Reports Dashboard
 
 <h1>
 
-₹{totalExpense}
+₹{expenseCost}
 
 </h1>
 
@@ -240,71 +270,19 @@ Reports Dashboard
 
 <h2>
 
-Project Progress
+Project Completion
 
 </h2>
 
 
 
-{
+<h1>
 
-projects.map(project=>(
+{completed} / {projects}
 
+Completed
 
-<div key={project.id}>
-
-
-<h3>
-
-{project.name}
-
-</h3>
-
-
-<p>
-
-Status:
-{project.status}
-
-</p>
-
-
-<div className="progress-bar">
-
-
-<div
-
-style={{
-
-width:project.progress+"%"
-
-}}
-
-/>
-
-
-</div>
-
-
-<p>
-
-{project.progress}% Completed
-
-</p>
-
-
-<hr/>
-
-
-</div>
-
-
-
-))
-
-
-}
-
+</h1>
 
 
 

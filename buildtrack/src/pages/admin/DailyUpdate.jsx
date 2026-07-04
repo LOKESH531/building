@@ -1,19 +1,16 @@
 import {useState} from "react";
 
-import AdminLayout from "../../layouts/AdminLayout";
-
-
 import {
 addDoc,
 collection
 }
 from "firebase/firestore";
 
-
 import {db} from "../../firebase/firebaseConfig";
 
+import {useParams} from "react-router-dom";
 
-import {useParams,useNavigate} from "react-router-dom";
+import AdminLayout from "../../layouts/AdminLayout";
 
 
 
@@ -22,20 +19,17 @@ function DailyUpdate(){
 
 const {id}=useParams();
 
-const navigate=useNavigate();
 
-
+const [work,setWork]=useState("");
 
 const [workers,setWorkers]=useState("");
 
-const [completed,setCompleted]=useState("");
-
-const [pending,setPending]=useState("");
+const [problem,setProblem]=useState("");
 
 
 
 
-const saveUpdate=async()=>{
+const save=async()=>{
 
 
 await addDoc(
@@ -48,13 +42,11 @@ projectId:id,
 
 date:new Date().toLocaleDateString(),
 
-workers:Number(workers),
+workDone:work,
 
-completed:completed,
+workers:workers,
 
-pending:pending,
-
-createdAt:new Date()
+problems:problem
 
 }
 
@@ -62,10 +54,7 @@ createdAt:new Date()
 
 
 
-alert("Daily Update Added");
-
-
-navigate(`/project/${id}`);
+alert("Update Added");
 
 
 };
@@ -73,88 +62,49 @@ navigate(`/project/${id}`);
 
 
 
-
-
 return(
 
-
 <AdminLayout>
-
-
-<h1>
-
-Daily Work Update
-
-</h1>
-
-
 
 
 <div className="form-box">
 
 
-<label>
+<h1>
 
-Workers
+Daily Update
 
-</label>
+</h1>
+
 
 
 <input
 
-type="number"
+placeholder="Work Done"
 
-value={workers}
-
-onChange={(e)=>setWorkers(e.target.value)}
-
-placeholder="Number of workers"
+onChange={e=>setWork(e.target.value)}
 
 />
 
 
 
-
-
-<label>
-
-Completed Work
-
-</label>
-
-
 <input
 
-value={completed}
+placeholder="Workers Count"
 
-onChange={(e)=>setCompleted(e.target.value)}
-
-placeholder="Example: Brick work completed"
+onChange={e=>setWorkers(e.target.value)}
 
 />
 
 
 
-
-
-<label>
-
-Pending Work
-
-</label>
-
-
 <input
 
-value={pending}
+placeholder="Problems"
 
-onChange={(e)=>setPending(e.target.value)}
-
-placeholder="Example: Painting pending"
+onChange={e=>setProblem(e.target.value)}
 
 />
-
-
 
 
 
@@ -162,11 +112,11 @@ placeholder="Example: Painting pending"
 
 className="add-btn"
 
-onClick={saveUpdate}
+onClick={save}
 
 >
 
-Save Update
+Add Update
 
 </button>
 
@@ -180,7 +130,6 @@ Save Update
 
 
 )
-
 
 }
 

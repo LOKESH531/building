@@ -1,24 +1,44 @@
 import {useEffect,useState} from "react";
 
-import AdminLayout from "../../layouts/AdminLayout";
-
 
 import {
+
 collection,
+
 addDoc,
+
 getDocs
+
 }
+
 from "firebase/firestore";
 
 
 import {db} from "../../firebase/firebaseConfig";
 
 
+import {
+
+useParams
+
+}
+
+from "react-router-dom";
+
+
+import AdminLayout from "../../layouts/AdminLayout";
+
+
 
 function Expenses(){
 
 
+const {id}=useParams();
+
+
+
 const [expenses,setExpenses]=useState([]);
+
 
 
 const [title,setTitle]=useState("");
@@ -30,12 +50,10 @@ const [category,setCategory]=useState("");
 
 
 
-
-
 useEffect(()=>{
 
 
-loadExpenses();
+load();
 
 
 },[]);
@@ -43,10 +61,7 @@ loadExpenses();
 
 
 
-
-
-
-const loadExpenses=async()=>{
+const load=async()=>{
 
 
 const data=await getDocs(
@@ -57,8 +72,9 @@ collection(db,"expenses")
 
 
 
-const list=data.docs.map(doc=>(
+setExpenses(
 
+data.docs.map(doc=>(
 
 {
 
@@ -68,12 +84,15 @@ id:doc.id,
 
 }
 
+))
 
-));
+.filter(
 
+e=> id ? e.projectId===id : true
 
+)
 
-setExpenses(list);
+);
 
 
 
@@ -82,18 +101,13 @@ setExpenses(list);
 
 
 
+const add=async()=>{
 
 
+if(!title||!amount||!category){
 
 
-const addExpense=async()=>{
-
-
-if(!title || !amount || !category){
-
-
-alert("Fill all fields");
-
+alert("Fill all details");
 
 return;
 
@@ -108,27 +122,19 @@ collection(db,"expenses"),
 
 {
 
+projectId:id,
 
 title:title,
 
-
 amount:Number(amount),
-
 
 category:category,
 
-
 date:new Date().toLocaleDateString()
-
-
 
 }
 
 );
-
-
-
-alert("Expense Added");
 
 
 
@@ -140,13 +146,10 @@ setCategory("");
 
 
 
-loadExpenses();
-
+load();
 
 
 };
-
-
 
 
 
@@ -157,6 +160,10 @@ return(
 <AdminLayout>
 
 
+
+<div className="form-box">
+
+
 <h1>
 
 Expenses
@@ -165,51 +172,84 @@ Expenses
 
 
 
-
-<div className="form-box">
-
-
 <input
 
 placeholder="Expense Name"
 
 value={title}
 
-onChange={(e)=>setTitle(e.target.value)}
+onChange={e=>setTitle(e.target.value)}
 
 />
 
 
 
-
-
 <input
-
-type="number"
 
 placeholder="Amount"
 
+type="number"
+
 value={amount}
 
-onChange={(e)=>setAmount(e.target.value)}
+onChange={e=>setAmount(e.target.value)}
 
 />
 
 
 
-
-
-<input
-
-placeholder="Category"
+<select
 
 value={category}
 
-onChange={(e)=>setCategory(e.target.value)}
+onChange={e=>setCategory(e.target.value)}
 
-/>
+>
 
 
+<option>
+
+Select Category
+
+</option>
+
+
+<option>
+
+Material
+
+</option>
+
+
+<option>
+
+Labour
+
+</option>
+
+
+<option>
+
+Transport
+
+</option>
+
+
+<option>
+
+Equipment
+
+</option>
+
+
+<option>
+
+Other
+
+</option>
+
+
+</select>
 
 
 
@@ -217,7 +257,7 @@ onChange={(e)=>setCategory(e.target.value)}
 
 className="add-btn"
 
-onClick={addExpense}
+onClick={add}
 
 >
 
@@ -226,12 +266,7 @@ Add Expense
 </button>
 
 
-
 </div>
-
-
-
-
 
 
 
@@ -247,58 +282,58 @@ Expense History
 
 
 
-
-
 {
 
 expenses.length===0
 
-?
+&&
 
-<h3>No Expenses Added</h3>
+<h2>No Expenses Added</h2>
 
-
-:
-
-
-expenses.map(item=>(
+}
 
 
-<div
+{
 
-key={item.id}
+expenses.map(e=>(
 
->
+
+<div key={e.id}>
 
 
 <h3>
 
-💰 {item.title}
+💰 {e.title}
 
 </h3>
 
 
 <p>
 
-Amount: ₹{item.amount}
+Category:
+
+{e.category}
 
 </p>
-
 
 
 <p>
 
-Category: {item.category}
+Amount:
+
+₹{e.amount}
 
 </p>
-
 
 
 <p>
 
-Date: {item.date}
+Date:
+
+{e.date}
 
 </p>
+
 
 
 <hr/>
@@ -324,9 +359,7 @@ Date: {item.date}
 )
 
 
-
 }
-
 
 
 export default Expenses;

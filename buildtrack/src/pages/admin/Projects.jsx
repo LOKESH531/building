@@ -23,6 +23,12 @@ const navigate=useNavigate();
 const [projects,setProjects]=useState([]);
 
 
+const [search,setSearch]=useState("");
+
+
+const [statusFilter,setStatusFilter]=useState("All");
+
+
 
 useEffect(()=>{
 
@@ -117,6 +123,32 @@ onClick={()=>navigate("/create-project")}
 
 
 
+<input
+
+placeholder="Search project"
+
+onChange={e=>setSearch(e.target.value)}
+
+/>
+
+
+
+<select
+
+onChange={e=>setStatusFilter(e.target.value)}
+
+>
+
+<option>All</option>
+
+<option>Running</option>
+
+<option>Completed</option>
+
+</select>
+
+
+
 
 
 <div className="project-grid">
@@ -133,7 +165,13 @@ projects.length === 0 ?
 :
 
 
-projects.map((project)=>(
+projects
+
+.filter(p=>p.name.toLowerCase().includes(search.toLowerCase()))
+
+.filter(p=>statusFilter==="All" || p.status===statusFilter)
+
+.map((project)=>(
 
 
 
