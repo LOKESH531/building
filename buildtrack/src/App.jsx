@@ -10,9 +10,13 @@ import Splash from "./pages/auth/Splash";
 
 import RoleSelect from "./pages/auth/RoleSelect";
 
-import AdminLogin from "./pages/auth/AdminLogin";
+import Login from "./pages/auth/Login";
 
-import ClientLogin from "./pages/auth/ClientLogin";
+import AdminSignup from "./pages/auth/AdminSignup";
+
+import ClientSignup from "./pages/auth/ClientSignup";
+
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
 
 import Dashboard from "./pages/admin/Dashboard";
@@ -87,23 +91,13 @@ element={<RoleSelect/>}
 
 
 
-<Route
+<Route path="/login" element={<Login/>}/>
 
-path="/admin-login"
+<Route path="/signup/admin" element={<AdminSignup/>}/>
 
-element={<AdminLogin/>}
+<Route path="/signup/client" element={<ClientSignup/>}/>
 
-/>
-
-
-
-<Route
-
-path="/client-login"
-
-element={<ClientLogin/>}
-
-/>
+<Route path="/forgot-password" element={<ForgotPassword/>}/>
 
 
 

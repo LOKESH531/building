@@ -1,27 +1,16 @@
-import {Navigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
+function ClientRoute({ children }) {
+  const { currentUser, role, loading } = useAuth();
 
-function ClientRoute({children}){
+  if (loading) return <h2>Loading...</h2>;
 
+  if (!currentUser) return <Navigate to="/login" replace />;
 
-const client=
+  if (role !== "client") return <Navigate to="/login" replace />;
 
-localStorage.getItem("client");
-
-
-
-if(!client){
-
-return <Navigate to="/client-login"/>
-
+  return children;
 }
-
-
-
-return children;
-
-
-}
-
 
 export default ClientRoute;

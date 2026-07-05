@@ -10,7 +10,7 @@ YAxis,
 Tooltip,
 ResponsiveContainer
 }
-from "recharts";
+from "recharts" ;
 
 import {
 PieChart,

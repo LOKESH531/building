@@ -21,7 +21,7 @@ Choose Account
 
 <button
 
-onClick={()=>navigate("/admin-login")}
+onClick={()=>navigate("/login")}
 
 >
 
@@ -33,7 +33,7 @@ onClick={()=>navigate("/admin-login")}
 
 <button
 
-onClick={()=>navigate("/client-login")}
+onClick={()=>navigate("/login")}
 
 >
 
