@@ -15,7 +15,7 @@ import AdminLogin from "./pages/auth/AdminLogin";
 import ClientLogin from "./pages/auth/ClientLogin";
 
 
-import Dashboard from "./pages/Dashboard";
+import Dashboard from "./pages/admin/Dashboard";
 
 
 import Projects from "./pages/admin/Projects";
