@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { resetPassword } from "../../services/authService";
+import { forgotPassword } from "../../services/authService";
 import "./Auth.css";
 
 function ForgotPassword() {
@@ -17,7 +17,7 @@ function ForgotPassword() {
 
     try {
       setLoading(true);
-      await resetPassword(email);
+      await forgotPassword(email);
       alert("Password reset email sent.");
     } catch (err) {
       alert(err.message);

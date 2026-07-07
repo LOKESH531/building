@@ -1,16 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { logoutUser } from "../../services/authService";
+import { logout as authLogout } from "../../services/authService";
 
 function LogoutButton() {
   const navigate = useNavigate();
 
-  const logout = async () => {
-    await logoutUser();
-    navigate("/login");
+  const handleLogout = async () => {
+    await authLogout();
+    navigate("/login", { replace: true });
   };
 
   return (
-    <button className="logout-btn" onClick={logout}>
+    <button className="logout-btn" onClick={handleLogout}>
       Logout
     </button>
   );
