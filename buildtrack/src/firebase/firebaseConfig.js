@@ -19,7 +19,7 @@ from "firebase/storage";
 
 
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyAag3a-LBRPXZjEbOtzd3sktCyP1b7pq90",
   authDomain: "buildtrack-1797.firebaseapp.com",
   projectId: "buildtrack-1797",
